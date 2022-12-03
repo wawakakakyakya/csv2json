@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  csv2json:
+    image: golang/alpine/self
+    container_name: csv2json
+    restart: always
+    hostname: csv2json
+    volumes:
+      - ./:/app/src/csv2json
