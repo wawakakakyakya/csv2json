@@ -1,0 +1,14 @@
+# /bin/sh
+
+fileName := csv2json
+
+# all: all-test export-all-coverage
+
+tidy:
+	go mod tidy
+build_linux: clean
+	GOOS=linux GOARCH=amd64 go build -o ${fileName} main.go
+clean:
+	rm -f ${fileName}
+test:
+	./backuper -dest ../ -src ../
