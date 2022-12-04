@@ -3,6 +3,7 @@ package args
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -48,13 +49,20 @@ func readStdin() (*bytes.Buffer, error) {
 	return buf, err
 }
 
-func GetArgs() (string, *bytes.Buffer, error) {
+func GetArgs() (string, *bytes.Buffer, []error) {
 	var err error
 	var filePath string
+	var errs []error
 	args := flag.Args()
 	if len(args) > 0 {
 		filePath = args[0]
 	}
 	stdin, err := readStdin()
-	return filePath, stdin, err
+	if err != nil {
+		errs = append(errs, err)
+	}
+	if filePath != "" && stdin.Len() > 0 {
+		errs = append(errs, errors.New("filepath and stdin both specified"))
+	}
+	return filePath, stdin, errs
 }

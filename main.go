@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 
@@ -10,21 +11,42 @@ import (
 	"github.com/wawakakakyakya/csv2json/parser"
 )
 
+func read(filePath string, stdin *bytes.Buffer) (*parser.Blocks, error) {
+	var lines *parser.Blocks
+	var err error
+	if filePath != "" {
+		lines, err = parser.ReadFromFile(filePath)
+
+	} else if stdin != nil {
+		lines, err = parser.ReadFromStdin(stdin)
+	}
+	return lines, err
+}
+
 func main() {
 	logger := logger.NewLogger("main")
-	filepath, stdin, err := args.GetArgs()
+	filepath, stdin, errs := args.GetArgs()
+	if len(errs) > 0 {
+		for _, e := range errs {
+			logger.Error(e.Error())
+		}
+		os.Exit(1)
+	}
+
+	lines, err := read(filepath, stdin)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
-	fmt.Println(fmt.Sprintf("remove after %s", stdin))
-	lines, err := parser.ReadFromStdin(stdin)
-	if err != nil {
-		logger.Error(err.Error())
+
+	jsons, custom_errs := converter.ToJson(*lines)
+	if len(custom_errs) > 0 {
+		for _, err := range errs {
+			logger.Error(err.Error())
+		}
+		os.Exit(1)
 	}
-	lines, err = parser.ReaFromFile(filepath)
-	if err != nil {
-		logger.Error(err.Error())
-	}
-	converter.ToJson(*lines)
+
+	fmt.Println(string(jsons))
+
 }

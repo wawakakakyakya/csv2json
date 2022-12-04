@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log"
 	"os"
 )
 
@@ -32,7 +31,7 @@ func parseCSV(reader io.Reader) *Blocks {
 	return &blocks
 }
 
-func ReaFromFile(path string) (*Blocks, error) {
+func ReadFromFile(path string) (*Blocks, error) {
 	var err error
 	blocks := new(Blocks)
 	if !Exists(path) {
@@ -41,7 +40,7 @@ func ReaFromFile(path string) (*Blocks, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		log.Fatal(err)
+		return blocks, err
 	}
 	defer file.Close()
 
